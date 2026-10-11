@@ -2,6 +2,7 @@ import json, shutil, uuid
 from datetime import date
 from pathlib import Path
 from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -32,6 +33,23 @@ def serialize(batch: Batch):
 
 @app.get("/health")
 def health(): return {"ok": True}
+
+class PricePreview(BaseModel):
+    model_config = ConfigDict(allow_inf_nan=False)
+    name: str = Field(min_length=1, max_length=160)
+    category: str = Field(min_length=1, max_length=80)
+    mrp: float = Field(gt=0)
+    quantity: int = Field(gt=0, strict=True)
+    date_type: str
+    printed_date: Optional[date] = None
+    storage_requirements: str = Field(max_length=200)
+    consumption_per_day: Optional[float] = Field(default=None, ge=0)
+    packaging_damaged: bool = False
+
+@app.post('/pricing/preview')
+def pricing_preview(data: PricePreview):
+    result=price_batch(category=data.category,mrp=data.mrp,quantity=data.quantity,date_type=data.date_type,printed_date=data.printed_date,storage_requirements=data.storage_requirements,consumption_per_day=data.consumption_per_day,packaging_damaged=data.packaging_damaged)
+    return {**{key:value for key,value in result.to_dict().items() if key not in {"buying_percentage","buying_price_per_unit","total_buying_offer","gross_spread","business_viable"}}, 'discount_percentage':round((1-result.selling_percentage)*100,2) if result.selling_percentage is not None else None, 'calculated_on':date.today().isoformat()}
 
 @app.get("/batches")
 def batches(request: Request, category: Optional[str]=None, sort: str="", admin: bool=False, db: Session=Depends(get_db)):
@@ -68,8 +86,8 @@ def accept_offer(batch_id: int, db: Session=Depends(get_db), user:User=Depends(r
     batch = db.get(Batch,batch_id)
     if not batch: raise HTTPException(404,"Batch not found")
     fresh = serialize(batch)["pricing"]
-    if not fresh["eligible"]: raise HTTPException(409,"This batch is not currently eligible for acquisition.")
-    if batch.status not in {"eligible","pending"}: raise HTTPException(409,"Offer cannot be accepted in this status.")
+    if not fresh["eligible"]: raise HTTPException(409,"This batch is not currently eligible for listing.")
+    if batch.status not in {"eligible","pending"}: raise HTTPException(409,"A listing cannot be published in this status.")
     batch.status="listed"; db.commit(); db.refresh(batch); return serialize(batch)
 
 @app.post("/batches/{batch_id}/review")

@@ -192,7 +192,7 @@ export default function Storefront({ section = "shop", catalog=false, browse="gr
           message={setToast}
         />
       )}
-      <footer>Clear dates. Fairer prices. More food enjoyed.</footer>
+      <footer><a href="/calculator">Shopkeeper pricing calculator</a><p>Clear dates. Fairer prices. More food enjoyed.</p></footer>
     </div>
   );
 }
@@ -468,7 +468,7 @@ function Seller({ onComplete }: { onComplete: (text: string) => void }) {
     if (!r.ok) return setError(result.detail);
     setOffer(result);
     loadHistory();
-    onComplete("Offer accepted — inventory is live in the shop.");
+    onComplete("Listing published — inventory is live in the shop.");
   };
   return (
     <section className={styles.portal}>
@@ -477,41 +477,41 @@ function Seller({ onComplete }: { onComplete: (text: string) => void }) {
         <h1>Turn good stock into recovered value.</h1>
         <p>
           Submit a batch and receive a clear, explainable recommendation. You
-          choose whether to accept the offer.
+          choose whether to publish your listing.
         </p>
         <div className={styles.steps}>
           <span>
             01 <b>Tell us the batch</b>
           </span>
           <span>
-            02 <b>See your offer</b>
+            02 <b>Review your price</b>
           </span>
           <span>
-            03 <b>Accept and list</b>
+            03 <b>Publish your listing</b>
           </span>
         </div>
       </aside>
       <div>
         <details className={styles.form}>
-          <summary>Inventory and saved offers ({history.length})</summary>
+          <summary>Inventory and draft listings ({history.length})</summary>
           <p>Shared local seller workspace</p>
-          {history.map(batch=><div key={batch.id} className={styles.historyRow}><b>{batch.name}</b><small>{batch.quantity_remaining} units remaining · {batch.status}</small>{batch.status==="eligible" && <button className={styles.linkButton} onClick={()=>setOffer(batch)}>Review saved offer</button>}</div>)}
+          {history.map(batch=><div key={batch.id} className={styles.historyRow}><b>{batch.name}</b><small>{batch.quantity_remaining} units remaining · {batch.status}</small>{batch.status==="eligible" && <button className={styles.linkButton} onClick={()=>setOffer(batch)}>Review draft listing</button>}</div>)}
         </details>
         {offer ? (
           <div className={styles.offer}>
             {error && <p className={styles.error} role="alert">{error}</p>}
-            <p className={styles.kicker}>YOUR OFFER</p>
+            <p className={styles.kicker}>RECOMMENDED SELLING PRICE</p>
             <h2>
               {offer.pricing.eligible
-                ? rupees(offer.pricing.total_buying_offer)
+                ? rupees(offer.pricing.selling_price_per_unit)
                 : "Needs review"}
             </h2>
             <p>{offer.pricing.reason}</p>
             {offer.pricing.eligible ? (
               <div className={styles.offerGrid}>
                 <div>
-                  <span>Offer / unit</span>
-                  <b>{rupees(offer.pricing.buying_price_per_unit)}</b>
+                  <span>Potential batch sales value</span>
+                  <b>{rupees(offer.pricing.total_listing_value)}</b>
                 </div>
                 <div>
                   <span>Customer price</span>
@@ -540,7 +540,7 @@ function Seller({ onComplete }: { onComplete: (text: string) => void }) {
                 className={styles.primary}
                 onClick={accept}
               >
-                Accept offer & list stock
+                Publish listing
               </button>
             )}
             {offer.status === "listed" && (
@@ -712,9 +712,7 @@ function Operations({
               </small>
             </div>
             <div>
-              {rupees(batch.buying_price || 0)} buy
-              <br />
-              {rupees(batch.selling_price || 0)} sell
+              {rupees(batch.selling_price || 0)} / unit
             </div>
             <span className={`${styles.status} ${styles[batch.status]}`}>
               {batch.status}

@@ -2,6 +2,8 @@
 
 A food marketplace that gives packaged groceries approaching their printed date a better chance of being enjoyed. Customers browse discounted stock, while administrators assess batches, review buying offers, and manage inventory.
 
+**Current marketplace model:** sellers retain their stock and sell directly to buyers. Second Serve provides listing and selling-price guidance; it does not buy batches or act as an inventory purchaser. The calculator and listing screens show recommended selling prices, not platform buying offers. Legacy buying/spread fields remain in the internal pricing engine and database for compatibility; they do not represent an acquisition workflow.
+
 Built with Next.js, React, TypeScript, FastAPI, SQLAlchemy, and SQLite. Runs locally without Docker, paid services, or cloud infrastructure.
 
 ## Features
@@ -79,6 +81,7 @@ Frontend commands are the same on all platforms.
 | `/categories` | Browse departments | Public |
 | `/deals` | Products discounted by at least 30% | Public |
 | `/login` | Customer sign-in and registration | Public |
+| `/calculator` | Shopkeeper pricing preview, without submitting inventory | Public |
 | `/admin/login` | Administrator sign-in | Public |
 | `/admin` | Inventory review and statistics | Administrator |
 | `/seller` | Add batches and review saved offers | Administrator |
