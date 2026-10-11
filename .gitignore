@@ -1,0 +1,48 @@
+# Node dependencies and Next.js output
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+.aws/
+*.pem
+*.key
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Local database, account sessions, and uploaded files
+backend/data/
+backend/uploads/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Test coverage and logs
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+*.log
+
+# Local tooling and operating-system files
+.codex/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
